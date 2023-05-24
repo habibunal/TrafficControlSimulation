@@ -11,12 +11,12 @@ ADC_HandleTypeDef hadc1;
 
 int main(void)
 {
-	HAL_Init();
-	SystemClock_Config();
-	MX_GPIO_Init();
-	MX_ADC1_Init();
+    HAL_Init();
+    SystemClock_Config();
+    MX_GPIO_Init();
+    MX_ADC1_Init();
 
-	lcd_init();
+    lcd_init();
 
     float t1 = 0, t2 = 0, t = 0, v = 0;
     char vel[10];
@@ -30,90 +30,90 @@ int main(void)
 
     while (1)
     {
-    	if(HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_0)) { t1 = HAL_GetTick(); }
-	  	if(HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_1)) { t2 = HAL_GetTick(); }
+        if(HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_0)) { t1 = HAL_GetTick(); }
+	if(HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_1)) { t2 = HAL_GetTick(); }
 
-	  	HAL_ADC_Start(&hadc1);
-		adc = HAL_ADC_GetValue(&hadc1);
-		db = (adc + 83.2073) / 11.003;
-	  	if(db < 0)
-	  	{
-	  		db = 0;
-	 	}
-	  	else if(db > 150)
-	  	{
-	  		db = 150;
-	 	}
-	  	sprintf(dB, "dB:%d", db);
-	  	HAL_ADC_Stop(&hadc1);
+	HAL_ADC_Start(&hadc1);
+        adc = HAL_ADC_GetValue(&hadc1);
+	db = (adc + 83.2073) / 11.003;
+	if(db < 0)
+	{
+	    db = 0;
+        }
+	else if(db > 150)
+	{
+	    db = 150;
+	}
+	sprintf(dB, "dB:%d", db);
+	HAL_ADC_Stop(&hadc1);
 
-	  	int rand1 = rand()%2;
-	 	int rand2 = rand()%2;
-	 	if(rand1 == 0)
-	 	{
-	  		latitude = ((float)rand()/(float)(RAND_MAX)) * 90.0f;
+	int rand1 = rand()%2;
+        int rand2 = rand()%2;
+	if(rand1 == 0)
+	{
+	    latitude = ((float)rand()/(float)(RAND_MAX)) * 90.0f;
+	}
+	else
+	{
+	    latitude = - ((float)rand()/(float)(RAND_MAX)) * 90.0f;
+        }
+
+        if(rand2 == 0)
+	{
+	    longitude = ((float)rand()/(float)(RAND_MAX)) * 180.0f;
+	}
+	else
+        {
+	    longitude = - ((float)rand()/(float)(RAND_MAX)) * 180.0f;
+	}
+
+	if(HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_2))
+	{
+	    t = t2 - t1;
+	    t = t / 1000 / 3600;
+	    v = 0.02 / t;
+
+	    if(v < 0)
+	    {
+	        v = v * (-1);
+	  	sprintf(vel, "Vel:%.0fkm/h Dir:L", v);
+	    }
+	    else
+	    {
+	        sprintf(vel, "Vel:%.0fkm/h Dir:R", v);
+	    }
+
+	    lcd_puts(0, 0, (int8_t*) vel);
+	    lcd_puts(1, 0, (int8_t*) dB);
+
+	    sprintf(crd, "Crd:(%.2f,%.2f)", latitude, longitude);
+	    lcd_puts(3, 0, (int8_t*) crd);
+
+	    if(v > 120 || db > 120)
+	    {
+	        if(v > 120 && db > 120)
+	  	{
+	  	    lcd_puts(2, 0, "H.Speed - A.Noise");
 	  	}
-	  	else
+	  	else if(db > 120)
 	  	{
-	  		latitude = - ((float)rand()/(float)(RAND_MAX)) * 90.0f;
-		}
-
-		if(rand2 == 0)
-	  	{
-	  		longitude = ((float)rand()/(float)(RAND_MAX)) * 180.0f;
+	  	    lcd_puts(2, 0, "Annoying Noise");
 	  	}
-	  	else
-		{
-	  		longitude = - ((float)rand()/(float)(RAND_MAX)) * 180.0f;
-	 	}
-
-	  	if(HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_2))
+	  	else if(v > 120)
 	  	{
-	  		t = t2 - t1;
-	  		t = t / 1000 / 3600;
-	  		v = 0.02 / t;
-
-	  		if(v < 0)
-	  		{
-	  			v = v * (-1);
-	  			sprintf(vel, "Vel:%.0fkm/h Dir:L", v);
-	  		}
-	  		else
-	  		{
-	  			sprintf(vel, "Vel:%.0fkm/h Dir:R", v);
-	  		}
-
-	  		lcd_puts(0, 0, (int8_t*) vel);
-	  		lcd_puts(1, 0, (int8_t*) dB);
-
-	  		sprintf(crd, "Crd:(%.2f,%.2f)", latitude, longitude);
-	  		lcd_puts(3, 0, (int8_t*) crd);
-
-	  		if(v > 120 || db > 120)
-	  		{
-	  			if(v > 120 && db > 120)
-	  			{
-	  				lcd_puts(2, 0, "H.Speed - A.Noise");
-	  			}
-	  			else if(db > 120)
-	  			{
-	  				lcd_puts(2, 0, "Annoying Noise");
-	  			}
-	  			else if(v > 120)
-	  			{
-	  				lcd_puts(2, 0, "High Speed");
-	  			}
-
-	  			for(int i=1; i<=10; i++)
-	  			{
-	  				HAL_GPIO_WritePin(GPIOB, GPIO_PIN_2, 1);
-	  				HAL_Delay(100);
-	  				HAL_GPIO_WritePin(GPIOB, GPIO_PIN_2, 0);
-	  				HAL_Delay(100);
-	  			}
-	  			HAL_GPIO_WritePin(GPIOB, GPIO_PIN_2, 1);
-	  		}
+	  	    lcd_puts(2, 0, "High Speed");
 	  	}
+
+	  	for(int i=1; i<=10; i++)
+	  	{
+	  	    HAL_GPIO_WritePin(GPIOB, GPIO_PIN_2, 1);
+	  	    HAL_Delay(100);
+	  	    HAL_GPIO_WritePin(GPIOB, GPIO_PIN_2, 0);
+	  	    HAL_Delay(100);
+	  	}
+	  	HAL_GPIO_WritePin(GPIOB, GPIO_PIN_2, 1);
+	    }
+	}
     }
 }
 
