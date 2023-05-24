@@ -8,7 +8,7 @@ when opening the project on another computer.
 * The GPS module is simulated with random values.
 
 *** You need to use an LCD library and an infrared sensor library.
-* Link of the LCD library I used:
+* Link of the LCD library I used (You may need to make some changes to the LCD library.):
 https://drive.google.com/file/d/15AICXokVFW9aNNVfiT2LjEtWEi3kE7VX/edit
 * Link of the infrared sensor library I used:
 https://www.theengineeringprojects.com/2018/07/infrared-sensor-library-for-proteus.html
